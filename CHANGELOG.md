@@ -1,5 +1,20 @@
 # Changelog
 
+## [2025-09-02] - GitHub Pages Deployment Fix
+
+### Added
+- Missing vite.svg file to public directory for favicon
+
+### Fixed
+- Fixed favicon path in index.html to use relative path (./vite.svg) for GitHub Pages compatibility
+- Resolved 404 errors for /vite.svg and /material/master.mtl on GitHub Pages deployment
+- Ensured all assets are properly copied to dist folder during build
+
+### Technical Details
+- Updated icon href from "/vite.svg" to "./vite.svg" for correct base path resolution
+- Added default Vite SVG favicon to prevent 404 errors
+- Verified material files and other assets are correctly included in production build
+
 ## [2025-09-01] - Artistic Studio Design Update
 
 ### Added
