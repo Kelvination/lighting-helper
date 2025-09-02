@@ -1,0 +1,12 @@
+newmtl Default
+map_Ka mat0_c.jpg
+map_Kd mat0_c.jpg
+newmtl Outline
+map_Ka mat1_c.jpg
+map_Kd mat1_c.jpg
+newmtl UI
+map_Ka mat0_c.jpg
+map_Kd mat0_c.jpg
+newmtl head
+map_Ka mat3_c.jpg
+map_Kd mat3_c.jpg

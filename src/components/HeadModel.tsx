@@ -1,7 +1,8 @@
 // HeadModel.tsx
 import { useLoader } from '@react-three/fiber';
 import React, { Suspense } from 'react';
-import { Mesh, MeshStandardMaterial } from 'three';
+import { Mesh, MeshPhongMaterial } from 'three';
+import { MTLLoader } from 'three/examples/jsm/Addons.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
 interface HeadModelProps {
@@ -10,21 +11,28 @@ interface HeadModelProps {
 }
 
 const HeadModel: React.FC<HeadModelProps> = ({ baseColor, roughness }) => {
-  const obj = useLoader(OBJLoader, '/asaro-head.obj');
+  const mat = useLoader(MTLLoader, '/material/master.mtl');
+  const obj = useLoader(OBJLoader, '/asaro-head3.obj',
+    (loader) => {
+      (loader as OBJLoader).setMaterials(mat);
+    }
+  );
+
+  console.log(baseColor, roughness);
+
 
   obj.traverse((child) => {
     if ((child as Mesh).isMesh) {
-      (child as Mesh).material = new MeshStandardMaterial({
-        color: baseColor,
-        metalness: 0.0,
-        roughness: roughness,
-      });
+      const mesh = child as Mesh;
+      // If it already has a material from the MTL
+      if (mesh.material)
+        (mesh.material as MeshPhongMaterial[])[0].color?.set(baseColor);
     }
   });
 
   return (
     <Suspense fallback={null}>
-      <primitive object={obj} scale={[1, 1, 1]} />
+      <primitive object={obj} scale={[8, 8, 8]} />
     </Suspense>
   );
 };

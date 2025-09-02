@@ -1,290 +1,355 @@
-import React from 'react';
+// ControlPanel.tsx
+import React, { useState } from 'react';
+import useLightingStore from '../store/useLightingStore';
+import CircularOrbitControl from './CircularOrbitControl';
+import VerticalHeightControl from './VerticalHeightControl';
+import RotationWheel from './RotationWheel';
 
-const labelStyle: React.CSSProperties = {
-  minWidth: '120px',
-  marginRight: '8px',
-  textAlign: 'right',
+const controlPanelStyles: React.CSSProperties = {
+  padding: '20px',
+  width: '320px',
+  maxWidth: '320px',
+  height: '100vh',
+  background: 'var(--bg-secondary)',
+  borderLeft: '1px solid var(--border-primary)',
+  overflowY: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
 };
 
-const rowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-start',
-  margin: '4px 0',
+const headerStyle: React.CSSProperties = {
+  margin: '0 0 18px 0',
+  fontSize: '18px',
+  fontWeight: '600',
+  color: 'var(--text-primary)',
+  letterSpacing: '-0.025em',
 };
 
 const sectionStyle: React.CSSProperties = {
-  border: '1px solid #ccc',
-  borderRadius: '6px',
-  padding: '8px',
+  background: 'var(--bg-tertiary)',
+  border: '1px solid var(--border-primary)',
+  borderRadius: 'var(--radius-md)',
+  padding: '12px',
   marginBottom: '12px',
+  boxShadow: 'var(--shadow-sm)',
 };
 
-interface ControlPanelProps {
-  // Head rotation
-  rotation: number;
-  onRotationChange: (value: number) => void;
+const sectionHeaderStyle: React.CSSProperties = {
+  margin: '0',
+  fontSize: '13px',
+  fontWeight: '600',
+  color: 'var(--text-primary)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  cursor: 'pointer',
+  userSelect: 'none',
+};
 
-  // Primary light
-  primaryLightColor: string;
-  onPrimaryLightColorChange: (color: string) => void;
-  primaryLightOrbit: number;
-  onPrimaryLightOrbitChange: (value: number) => void;
-  primaryLightHeight: number;
-  onPrimaryLightHeightChange: (value: number) => void;
-  primaryLightIntensity: number;
-  onPrimaryLightIntensityChange: (value: number) => void;
-  primaryLightDistance: number;
-  onPrimaryLightDistanceChange: (value: number) => void;
+const chevronStyle: React.CSSProperties = {
+  fontSize: '16px',
+  color: 'var(--text-secondary)',
+  transition: 'transform 0.2s ease',
+  display: 'flex',
+  alignItems: 'center',
+};
 
-  // Secondary light
-  secondaryLightEnabled: boolean;
-  onSecondaryLightEnabledChange: (value: boolean) => void;
-  secondaryLightColor: string;
-  onSecondaryLightColorChange: (color: string) => void;
-  secondaryLightOrbit: number;
-  onSecondaryLightOrbitChange: (value: number) => void;
-  secondaryLightHeight: number;
-  onSecondaryLightHeightChange: (value: number) => void;
-  secondaryLightIntensity: number;
-  onSecondaryLightIntensityChange: (value: number) => void;
-  secondaryLightDistance: number;
-  onSecondaryLightDistanceChange: (value: number) => void;
+const controlRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: '8px',
+};
 
-  // Material
-  materialBaseColor: string;
-  onMaterialBaseColorChange: (color: string) => void;
-  materialRoughness: number;
-  onMaterialRoughnessChange: (value: number) => void;
+const controlGridFullStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+  gap: '8px',
+  marginBottom: '10px',
+};
 
-  // Scene background
-  backgroundColor: string;
-  onBackgroundColorChange: (color: string) => void;
-}
+const labelStyle: React.CSSProperties = {
+  fontSize: '13px',
+  color: 'var(--text-secondary)',
+  fontWeight: '500',
+  minWidth: '80px',
+};
 
-const ControlPanel: React.FC<ControlPanelProps> = ({
+const colorInputStyle: React.CSSProperties = {
+  width: '40px',
+  height: '32px',
+  border: '1px solid var(--border-primary)',
+  borderRadius: 'var(--radius-sm)',
+  background: 'transparent',
+  cursor: 'pointer',
+  outline: 'none',
+};
+
+const checkboxStyle: React.CSSProperties = {
+  width: '18px',
+  height: '18px',
+  accentColor: 'var(--accent-primary)',
+  cursor: 'pointer',
+};
+
+const ControlPanel: React.FC = () => {
+  // Collapsible state - all collapsed by default
+  const [collapsedSections, setCollapsedSections] = useState({
+    head: true,
+    primaryLight: true,
+    secondaryLight: true,
+    material: true,
+    background: true,
+  });
+
+  const toggleSection = (section: keyof typeof collapsedSections) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   // Head
-  rotation,
-  onRotationChange,
+  const rotation = useLightingStore((s) => s.rotation);
+  const setRotation = useLightingStore((s) => s.setRotation);
 
-  // Primary light
-  primaryLightColor,
-  onPrimaryLightColorChange,
-  primaryLightOrbit,
-  onPrimaryLightOrbitChange,
-  primaryLightHeight,
-  onPrimaryLightHeightChange,
-  primaryLightIntensity,
-  onPrimaryLightIntensityChange,
-  primaryLightDistance,
-  onPrimaryLightDistanceChange,
+  // Primary Light
+  const primaryLightColor = useLightingStore((s) => s.primaryLightColor);
+  const setPrimaryLightColor = useLightingStore((s) => s.setPrimaryLightColor);
+  const primaryLightOrbit = useLightingStore((s) => s.primaryLightOrbit);
+  const setPrimaryLightOrbit = useLightingStore((s) => s.setPrimaryLightOrbit);
+  const primaryLightHeight = useLightingStore((s) => s.primaryLightHeight);
+  const setPrimaryLightHeight = useLightingStore((s) => s.setPrimaryLightHeight);
+  const primaryLightIntensity = useLightingStore((s) => s.primaryLightIntensity);
+  const setPrimaryLightIntensity = useLightingStore((s) => s.setPrimaryLightIntensity);
+  const primaryHelperEnabled = useLightingStore((s) => s.primaryHelperEnabled);
+  const setPrimaryHelperEnabled = useLightingStore((s) => s.setPrimaryHelperEnabled);
 
-  // Secondary light
-  secondaryLightEnabled,
-  onSecondaryLightEnabledChange,
-  secondaryLightColor,
-  onSecondaryLightColorChange,
-  secondaryLightOrbit,
-  onSecondaryLightOrbitChange,
-  secondaryLightHeight,
-  onSecondaryLightHeightChange,
-  secondaryLightIntensity,
-  onSecondaryLightIntensityChange,
-  secondaryLightDistance,
-  onSecondaryLightDistanceChange,
+  // Secondary Light
+  const secondaryLightEnabled = useLightingStore((s) => s.secondaryLightEnabled);
+  const setSecondaryLightEnabled = useLightingStore((s) => s.setSecondaryLightEnabled);
+  const secondaryLightColor = useLightingStore((s) => s.secondaryLightColor);
+  const setSecondaryLightColor = useLightingStore((s) => s.setSecondaryLightColor);
+  const secondaryLightOrbit = useLightingStore((s) => s.secondaryLightOrbit);
+  const setSecondaryLightOrbit = useLightingStore((s) => s.setSecondaryLightOrbit);
+  const secondaryLightHeight = useLightingStore((s) => s.secondaryLightHeight);
+  const setSecondaryLightHeight = useLightingStore((s) => s.setSecondaryLightHeight);
+  const secondaryLightIntensity = useLightingStore((s) => s.secondaryLightIntensity);
+  const setSecondaryLightIntensity = useLightingStore((s) => s.setSecondaryLightIntensity);
+  const secondaryHelperEnabled = useLightingStore((s) => s.secondaryHelperEnabled);
+  const setSecondaryHelperEnabled = useLightingStore((s) => s.setSecondaryHelperEnabled);
 
   // Material
-  materialBaseColor,
-  onMaterialBaseColorChange,
-  materialRoughness,
-  onMaterialRoughnessChange,
+  const materialBaseColor = useLightingStore((s) => s.materialBaseColor);
+  const setMaterialBaseColor = useLightingStore((s) => s.setMaterialBaseColor);
 
-  // Scene background
-  backgroundColor,
-  onBackgroundColorChange,
-}) => {
+  // Background
+  const backgroundColor = useLightingStore((s) => s.backgroundColor);
+  const setBackgroundColor = useLightingStore((s) => s.setBackgroundColor);
+
   return (
-    <div style={{ padding: '1rem', width: 300, maxWidth: '300px', fontFamily: 'sans-serif' }}>
-      <h2>Controls</h2>
+    <div style={controlPanelStyles}>
+      <h1 style={headerStyle}>Lighting Controls</h1>
 
       {/* Head Section */}
       <section style={sectionStyle}>
-        <h3 style={{ marginTop: 0 }}>Head</h3>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Rotate (rad): {rotation.toFixed(2)}</label>
-          <input
-            type="range"
-            min={-Math.PI * 2}
-            max={Math.PI * 2}
-            step={0.1}
-            value={rotation}
-            onChange={(e) => onRotationChange(parseFloat(e.target.value))}
-          />
-        </div>
+        <h3 style={sectionHeaderStyle} onClick={() => toggleSection('head')}>
+          <span>Head</span>
+          <span style={{
+            ...chevronStyle,
+            transform: collapsedSections.head ? 'rotate(-90deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </span>
+        </h3>
+        {!collapsedSections.head && (
+          <div style={{...controlRowStyle, paddingTop: '10px'}}>
+            <label style={labelStyle}>Rotation</label>
+            <div style={{width: '50%', display: 'flex', justifyContent: 'center'}}>
+              <RotationWheel
+                value={rotation}
+                onChange={setRotation}
+                label=""
+              />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Primary Light Section */}
       <section style={sectionStyle}>
-        <h3 style={{ marginTop: 0 }}>Primary Light</h3>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Color</label>
-          <input
-            type="color"
-            value={primaryLightColor}
-            onChange={(e) => onPrimaryLightColorChange(e.target.value)}
-          />
-        </div>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Orbit: {primaryLightOrbit}°</label>
-          <input
-            type="range"
-            min={-360}
-            max={360}
-            step={1}
-            value={primaryLightOrbit}
-            onChange={(e) => onPrimaryLightOrbitChange(parseInt(e.target.value))}
-          />
-        </div>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Height: {primaryLightHeight.toFixed(2)}</label>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={primaryLightHeight}
-            onChange={(e) => onPrimaryLightHeightChange(parseFloat(e.target.value))}
-          />
-        </div>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Intensity: {primaryLightIntensity.toFixed(2)}</label>
-          <input
-            type="range"
-            min={0}
-            max={3000}
-            step={50}
-            value={primaryLightIntensity}
-            onChange={(e) => onPrimaryLightIntensityChange(parseFloat(e.target.value))}
-          />
-        </div>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Distance: {primaryLightDistance.toFixed(1)}</label>
-          <input
-            type="range"
-            min={1}
-            max={100}
-            step={1}
-            value={primaryLightDistance}
-            onChange={(e) => onPrimaryLightDistanceChange(parseFloat(e.target.value))}
-          />
-        </div>
+        <h3 style={sectionHeaderStyle} onClick={() => toggleSection('primaryLight')}>
+          <span>Primary Light</span>
+          <span style={{
+            ...chevronStyle,
+            transform: collapsedSections.primaryLight ? 'rotate(-90deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </span>
+        </h3>
+        {!collapsedSections.primaryLight && (
+          <div style={{paddingTop: '10px'}}>
+            <div style={controlRowStyle}>
+              <label style={labelStyle}>Color</label>
+              <input
+                type="color"
+                value={primaryLightColor}
+                onChange={(e) => setPrimaryLightColor(e.target.value)}
+                style={colorInputStyle}
+              />
+            </div>
+            
+            <div style={controlGridFullStyle}>
+              <CircularOrbitControl
+                value={primaryLightOrbit}
+                onChange={setPrimaryLightOrbit}
+                label="Orbit"
+              />
+              <VerticalHeightControl
+                value={primaryLightHeight}
+                onChange={setPrimaryLightHeight}
+                label="Height"
+                height={60}
+              />
+              <VerticalHeightControl
+                value={primaryLightIntensity / 10}
+                onChange={(value) => setPrimaryLightIntensity(value * 10)}
+                label="Intensity"
+                height={60}
+              />
+            </div>
+            
+            <div style={controlRowStyle}>
+              <label style={labelStyle}>Show Helper</label>
+              <input
+                type="checkbox"
+                checked={primaryHelperEnabled}
+                onChange={(e) => setPrimaryHelperEnabled(e.target.checked)}
+                style={checkboxStyle}
+              />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Secondary Light Section */}
       <section style={sectionStyle}>
-        <h3 style={{ marginTop: 0 }}>Secondary Light</h3>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Enable</label>
-          <input
-            type="checkbox"
-            checked={secondaryLightEnabled}
-            onChange={(e) => onSecondaryLightEnabledChange(e.target.checked)}
-          />
-        </div>
+        <h3 style={sectionHeaderStyle} onClick={() => toggleSection('secondaryLight')}>
+          <span>Secondary Light</span>
+          <span style={{
+            ...chevronStyle,
+            transform: collapsedSections.secondaryLight ? 'rotate(-90deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </span>
+        </h3>
+        {!collapsedSections.secondaryLight && (
+          <div style={{paddingTop: '10px'}}>
+            <div style={controlRowStyle}>
+              <label style={labelStyle}>Enable</label>
+              <input
+                type="checkbox"
+                checked={secondaryLightEnabled}
+                onChange={(e) => setSecondaryLightEnabled(e.target.checked)}
+                style={checkboxStyle}
+              />
+            </div>
 
-        {secondaryLightEnabled && (
-          <>
-            <div style={rowStyle}>
-              <label style={labelStyle}>Color</label>
-              <input
-                type="color"
-                value={secondaryLightColor}
-                onChange={(e) => onSecondaryLightColorChange(e.target.value)}
-              />
-            </div>
-            <div style={rowStyle}>
-              <label style={labelStyle}>Orbit: {secondaryLightOrbit}°</label>
-              <input
-                type="range"
-                min={-360}
-                max={360}
-                step={1}
-                value={secondaryLightOrbit}
-                onChange={(e) => onSecondaryLightOrbitChange(parseInt(e.target.value))}
-              />
-            </div>
-            <div style={rowStyle}>
-              <label style={labelStyle}>Height: {secondaryLightHeight.toFixed(2)}</label>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.01}
-                value={secondaryLightHeight}
-                onChange={(e) => onSecondaryLightHeightChange(parseFloat(e.target.value))}
-              />
-            </div>
-            <div style={rowStyle}>
-              <label style={labelStyle}>Intensity: {secondaryLightIntensity.toFixed(2)}</label>
-              <input
-                type="range"
-                min={0}
-                max={3000}
-                step={50}
-                value={secondaryLightIntensity}
-                onChange={(e) => onSecondaryLightIntensityChange(parseFloat(e.target.value))}
-              />
-            </div>
-            <div style={rowStyle}>
-              <label style={labelStyle}>Distance: {secondaryLightDistance.toFixed(1)}</label>
-              <input
-                type="range"
-                min={1}
-                max={100}
-                step={1}
-                value={secondaryLightDistance}
-                onChange={(e) => onSecondaryLightDistanceChange(parseFloat(e.target.value))}
-              />
-            </div>
-          </>
+            {secondaryLightEnabled && (
+              <>
+                <div style={controlRowStyle}>
+                  <label style={labelStyle}>Color</label>
+                  <input
+                    type="color"
+                    value={secondaryLightColor}
+                    onChange={(e) => setSecondaryLightColor(e.target.value)}
+                    style={colorInputStyle}
+                  />
+                </div>
+                
+                <div style={controlGridFullStyle}>
+                  <CircularOrbitControl
+                    value={secondaryLightOrbit}
+                    onChange={setSecondaryLightOrbit}
+                    label="Orbit"
+                  />
+                  <VerticalHeightControl
+                    value={secondaryLightHeight}
+                    onChange={setSecondaryLightHeight}
+                    label="Height"
+                    height={60}
+                  />
+                  <VerticalHeightControl
+                    value={secondaryLightIntensity / 10}
+                    onChange={(value) => setSecondaryLightIntensity(value * 10)}
+                    label="Intensity"
+                    height={60}
+                  />
+                </div>
+                
+                <div style={controlRowStyle}>
+                  <label style={labelStyle}>Show Helper</label>
+                  <input
+                    type="checkbox"
+                    checked={secondaryHelperEnabled}
+                    onChange={(e) => setSecondaryHelperEnabled(e.target.checked)}
+                    style={checkboxStyle}
+                  />
+                </div>
+              </>
+            )}
+          </div>
         )}
       </section>
 
       {/* Material Section */}
       <section style={sectionStyle}>
-        <h3 style={{ marginTop: 0 }}>Material</h3>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Base Color</label>
-          <input
-            type="color"
-            value={materialBaseColor}
-            onChange={(e) => onMaterialBaseColorChange(e.target.value)}
-          />
-        </div>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Roughness: {materialRoughness.toFixed(2)}</label>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={materialRoughness}
-            onChange={(e) => onMaterialRoughnessChange(parseFloat(e.target.value))}
-          />
-        </div>
+        <h3 style={sectionHeaderStyle} onClick={() => toggleSection('material')}>
+          <span>Material</span>
+          <span style={{
+            ...chevronStyle,
+            transform: collapsedSections.material ? 'rotate(-90deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </span>
+        </h3>
+        {!collapsedSections.material && (
+          <div style={{...controlRowStyle, paddingTop: '10px'}}>
+            <label style={labelStyle}>Base Color</label>
+            <input
+              type="color"
+              value={materialBaseColor}
+              onChange={(e) => setMaterialBaseColor(e.target.value)}
+              style={colorInputStyle}
+            />
+          </div>
+        )}
       </section>
 
       {/* Background Section */}
       <section style={sectionStyle}>
-        <h3 style={{ marginTop: 0 }}>Background</h3>
-        <div style={rowStyle}>
-          <label style={labelStyle}>Color</label>
-          <input
-            type="color"
-            value={backgroundColor}
-            onChange={(e) => onBackgroundColorChange(e.target.value)}
-          />
-        </div>
+        <h3 style={sectionHeaderStyle} onClick={() => toggleSection('background')}>
+          <span>Background</span>
+          <span style={{
+            ...chevronStyle,
+            transform: collapsedSections.background ? 'rotate(-90deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </span>
+        </h3>
+        {!collapsedSections.background && (
+          <div style={{...controlRowStyle, paddingTop: '10px'}}>
+            <label style={labelStyle}>Color</label>
+            <input
+              type="color"
+              value={backgroundColor}
+              onChange={(e) => setBackgroundColor(e.target.value)}
+              style={colorInputStyle}
+            />
+          </div>
+        )}
       </section>
     </div>
   );
