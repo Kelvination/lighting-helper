@@ -21,7 +21,7 @@ const HeadModel: React.FC<HeadModelProps> = ({ baseColor, roughness }) => {
   console.log(baseColor, roughness);
 
 
-  obj.traverse((child) => {
+  obj.traverse((child: any) => {
     if ((child as Mesh).isMesh) {
       const mesh = child as Mesh;
       // If it already has a material from the MTL
