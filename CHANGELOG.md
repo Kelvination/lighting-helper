@@ -1,5 +1,20 @@
 # Changelog
 
+## [2025-09-02] - Custom Branding and UI Polish
+
+### Added
+- Custom lighting-themed favicon with warm golden gradients and light rays
+- Updated page title to "Lighting Helper"
+
+### Changed
+- Replaced generic Vite logo with custom light bulb icon that matches app theme
+- Enhanced branding to reflect the app's lighting visualization purpose
+
+### Technical Details
+- Created custom SVG favicon with radial gradients and lighting effects
+- Used warm color palette (golds, creams) consistent with app's artistic theme
+- Maintained proper SVG dimensions and browser compatibility
+
 ## [2025-09-02] - GitHub Pages Deployment Fix
 
 ### Added
