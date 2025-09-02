@@ -11,8 +11,8 @@ interface HeadModelProps {
 }
 
 const HeadModel: React.FC<HeadModelProps> = ({ baseColor, roughness }) => {
-  const mat = useLoader(MTLLoader, '/material/master.mtl');
-  const obj = useLoader(OBJLoader, '/asaro-head3.obj',
+  const mat = useLoader(MTLLoader, './material/master.mtl');
+  const obj = useLoader(OBJLoader, './asaro-head3.obj',
     (loader) => {
       (loader as OBJLoader).setMaterials(mat);
     }
